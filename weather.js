@@ -158,6 +158,15 @@ function updateCurrentWeather(data) {
     const temp = Math.round(data.main.temp);
     currentTemp.textContent = `${temp}°`;
     
+    // Add high/low temperature display for current day
+    const highTemp = Math.round(data.main.temp_max);
+    const lowTemp = Math.round(data.main.temp_min);
+    const currentDayRange = document.getElementById('current-day-range');
+    currentDayRange.innerHTML = `
+        <span class="high-temp">${highTemp}°</span>
+        <span class="low-temp">${lowTemp}°</span>
+    `;
+    
     // Update weather icon based on condition
     const weatherId = data.weather[0].id;
     currentWeatherIcon.innerHTML = getWeatherIcon(weatherId);
@@ -174,57 +183,91 @@ function updateCurrentWeather(data) {
 
 // Update forecast display
 function updateForecast(data) {
-    // Group forecast by day (taking one forecast per day at noon)
     const dailyForecasts = {};
-    
+    const now = new Date();
+    const next5Days = [];
+
+    // Create date objects for next 5 days
+    for (let i = 1; i <= 5; i++) {
+        const date = new Date(now);
+        date.setDate(now.getDate() + i);
+        next5Days.push({
+            weekday: date.toLocaleDateString('en-US', { weekday: 'short' }),
+            date: date
+        });
+    }
+
+    // Process API data
     data.list.forEach(item => {
         const date = new Date(item.dt * 1000);
-        const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayKey = date.toLocaleDateString('en-US', { weekday: 'short' });
         
-        // If we don't have this day yet and it's around noon (12PM), add it
-        if (!dailyForecasts[day] && date.getHours() >= 11 && date.getHours() <= 13) {
-            dailyForecasts[day] = item;
+        // Only process if it's one of the next 5 days
+        if (!next5Days.some(d => d.weekday === dayKey)) return;
+
+        if (!dailyForecasts[dayKey]) {
+            dailyForecasts[dayKey] = {
+                min: item.main.temp_min,
+                max: item.main.temp_max,
+                icons: []
+            };
+        } else {
+            dailyForecasts[dayKey].min = Math.min(dailyForecasts[dayKey].min, item.main.temp_min);
+            dailyForecasts[dayKey].max = Math.max(dailyForecasts[dayKey].max, item.main.temp_max);
+        }
+        
+        dailyForecasts[dayKey].icons.push(item.weather[0].id);
+    });
+
+    // Build forecast in chronological order
+    let forecastHTML = '';
+    
+    next5Days.forEach(dayInfo => {
+        const dayData = dailyForecasts[dayInfo.weekday];
+        const dayName = dayInfo.weekday;
+        
+        if (dayData) {
+            const modeIcon = mode(dayData.icons);
+            const weatherId = modeIcon || dayData.icons[0];
+            
+            forecastHTML += `
+                <div class="forecast-day">
+                    <div class="day-name">${dayName}</div>
+                    <div class="forecast-icon">
+                        ${getWeatherIcon(weatherId)}
+                    </div>
+                    <div class="temp-range">
+                        <span class="high-temp">${Math.round(dayData.max)}°</span>
+                        <span class="low-temp">${Math.round(dayData.min)}°</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Fallback if API doesn't have data for that day
+            forecastHTML += `
+                <div class="forecast-day">
+                    <div class="day-name">${dayName}</div>
+                    <div class="forecast-icon">
+                        <ion-icon name="help-outline"></ion-icon>
+                    </div>
+                    <div class="temp-range">
+                        <span class="high-temp">-</span>
+                        <span class="low-temp">-</span>
+                    </div>
+                </div>
+            `;
         }
     });
     
-    // Convert to array and take only the next 6 days
-    const forecasts = Object.values(dailyForecasts).slice(0, 6);
-    
-    // Create forecast HTML
-    let forecastHTML = '';
-    
-    forecasts.forEach(item => {
-        const date = new Date(item.dt * 1000);
-        const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-        const temp = Math.round(item.main.temp);
-        const weatherId = item.weather[0].id;
-        
-        forecastHTML += `
-            <div class="forecast-day">
-                <div class="day-name">${day}</div>
-                <div class="forecast-icon">
-                    ${getWeatherIcon(weatherId)}
-                </div>
-                <div class="forecast-temp">${temp}°</div>
-            </div>
-        `;
-    });
-    
-    // Fill any missing days to always have 6 days
-    const missingDays = 6 - forecasts.length;
-    for (let i = 0; i < missingDays; i++) {
-        forecastHTML += `
-            <div class="forecast-day">
-                <div class="day-name">-</div>
-                <div class="forecast-icon">
-                    <ion-icon name="help-outline"></ion-icon>
-                </div>
-                <div class="forecast-temp">-</div>
-            </div>
-        `;
-    }
-    
     forecast.innerHTML = forecastHTML;
+}
+
+// Helper function to find most frequent icon
+function mode(arr) {
+    return arr.sort((a,b) => 
+        arr.filter(v => v === a).length - 
+        arr.filter(v => v === b).length
+    ).pop();
 }
 
 // Load data for other cities
