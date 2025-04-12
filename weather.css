@@ -184,9 +184,9 @@
         }
 
         .temp-large {
-            font-size: 64px;
+            font-size: 72px;
             font-weight: 500;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
         }
 
         .weather-icon {
@@ -196,15 +196,15 @@
         }
 
         .weather-details {
-            font-size: 14px;
+            font-size: 15px;
             color: var(--muted-text);
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         /* Forecast */
         .forecast {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 12px;
         }
 
@@ -220,14 +220,23 @@
         }
 
         .day-name {
-            font-size: 14px;
+            font-size: 16px;
+            font-weight: 500;
             margin-bottom: 12px;
         }
 
         .forecast-icon {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             margin-bottom: 12px;
+        }
+
+        .forecast-icon ion-icon {
+            font-size: 48px;
+        }
+
+        .weather-icon ion-icon {
+            font-size: 80px;
         }
 
         .forecast-temp {
@@ -537,4 +546,38 @@
         
         .close:hover {
             color: #000;
+        }
+
+        .temp-range {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .high-temp {
+            color: #ff6b6b;
+        }
+        
+        .low-temp {
+            color: #4dabf7;
+            opacity: 0.8;
+        }
+
+        .current-weather .temp-large {
+            margin-bottom: 8px;
+        }
+        
+        .current-weather .temp-range {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .forecast-day .temp-range {
+            display: flex;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 500;
         }
