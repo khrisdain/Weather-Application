@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="weather.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/collection/components/icon/icon.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="nav-buttons">
+                <button class="nav-button">
+                    <ion-icon name="grid-outline"></ion-icon>
+                </button>
+                <button class="nav-button">
+                    <ion-icon name="home-outline"></ion-icon>
+                </button>
+            </div>
+            <div class="location-bar" id="location-search">
+                <ion-icon name="location-outline"></ion-icon>
+                <input type="text" class="location-text" placeholder="Search city..." id="search-input" readonly>
+                <ion-icon name="search-outline"></ion-icon>
+            </div>
+            <div class="user-controls">
+                <button class="nav-button" id="theme-toggle">
+                    <ion-icon name="moon-outline" id="theme-icon"></ion-icon>
+                </button>
+                <button class="nav-button">
+                    <ion-icon name="settings-outline"></ion-icon>
+                </button>
+                <div class="user-icon">U</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" data-tab="today">Today</div>
+            <div class="tab" data-tab="tomorrow">Tomorrow</div>
+            <div class="tab" data-tab="next7">Next 7 days</div>
+        </div>
+
+        <!-- Weather Content -->
+        <div class="weather-content">
+            <!-- Current Weather -->
+            <div class="current-weather" id="current-weather">
+                <div class="day-time" id="current-day-time">Monday 11:42 PM</div>
+                <div class="temp-large" id="current-temp">16°</div>
+                <div class="weather-icon" id="current-weather-icon">
+                    <ion-icon name="sunny" class="sunny"></ion-icon>
+                </div>
+                <div class="weather-details" id="weather-details">
+                    <div>Real feel: 16°</div>
+                    <div>Wind: NE 5 km/h</div>
+                    <div>Humidity: 82%</div>
+                    <div>Sunrise: 6:02 AM</div>
+                    <div>Sunset: 8:15 PM</div>
+                </div>
+            </div>
+
+            <!-- Forecast -->
+            <div class="forecast" id="forecast">
+                <div class="forecast-day">
+                    <div class="day-name">Tue</div>
+                    <div class="forecast-icon">
+                        <ion-icon name="partly-sunny" class="partly-cloudy"></ion-icon>
+                    </div>
+                    <div class="forecast-temp">10°</div>
+                </div>
+                <div class="forecast-day">
+                    <div class="day-name">Wed</div>
+                    <div class="forecast-icon">
+                        <ion-icon name="cloudy" class="cloudy"></ion-icon>
+                    </div>
+                    <div class="forecast-temp">15°</div>
+                </div>
+                <div class="forecast-day">
+                    <div class="day-name">Thu</div>
+                    <div class="forecast-icon">
+                        <ion-icon name="partly-sunny" class="partly-cloudy"></ion-icon>
+                    </div>
+                    <div class="forecast-temp">11°</div>
+                </div>
+                <div class="forecast-day">
+                    <div class="day-name">Fri</div>
+                    <div class="forecast-icon">
+                        <ion-icon name="partly-sunny" class="partly-cloudy"></ion-icon>
+                    </div>
+                    <div class="forecast-temp">18°</div>
+                </div>
+                <div class="forecast-day">
+                    <div class="day-name">Sat</div>
+                    <div class="forecast-icon">
+                        <ion-icon name="rainy" class="rainy"></ion-icon>
+                    </div>
+                    <div class="forecast-temp">12°</div>
+                </div>
+                <div class="forecast-day">
+                    <div class="day-name">Sun</div>
+                    <div class="forecast-icon">
+                        <ion-icon name="rainy" class="rainy"></ion-icon>
+                    </div>
+                    <div class="forecast-temp">10°</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chance of Rain -->
+        <div class="rain-chance">
+            <div class="section-title">Chance of rain</div>
+            <div class="rain-graph" id="rain-graph">
+                <div class="rain-bar">
+                    <div class="bar" style="height: 30%;"></div>
+                    <div class="time">10AM</div>
+                </div>
+                <div class="rain-bar">
+                    <div class="bar" style="height: 10%;"></div>
+                    <div class="time">12PM</div>
+                </div>
+                <div class="rain-bar">
+                    <div class="bar" style="height: 5%;"></div>
+                    <div class="time">2PM</div>
+                </div>
+                <div class="rain-bar">
+                    <div class="bar" style="height: 60%;"></div>
+                    <div class="time">4PM</div>
+                </div>
+                <div class="rain-bar">
+                    <div class="bar" style="height: 80%;"></div>
+                    <div class="time">6PM</div>
+                </div>
+                <div class="rain-bar">
+                    <div class="bar" style="height: 40%;"></div>
+                    <div class="time">8PM</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section">
+            <div class="map-header">
+                <div class="section-title">Global map</div>
+                <div class="view-options">
+                    <span>View wide</span>
+                    <ion-icon name="expand-outline"></ion-icon>
+                </div>
+            </div>
+            <div class="map-container">
+                <div id="map-placeholder" style="background-color: #2d2d2d; height: 100%; width: 100%; position: relative;">
+                    <div style="position: absolute; right: 10px; bottom: 10px; color: white; background-color: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px;">
+                        Seattle, AU
+                    </div>
+                </div>
+                <div class="map-controls">
+                    <button class="map-button">
+                        <ion-icon name="add-outline"></ion-icon>
+                    </button>
+                    <button class="map-button">
+                        <ion-icon name="remove-outline"></ion-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other Cities -->
+        <div class="other-cities">
+            <div class="cities-header">
+                <div class="section-title">Other large cities</div>
+                <div>
+                    <span>Show All</span>
+                    <ion-icon name="chevron-forward-outline"></ion-icon>
+                </div>
+            </div>
+            <div class="cities-grid" id="cities-grid">
+                <div class="city-card">
+                    <div class="city-name">California</div>
+                    <div class="city-condition">Mostly Sunny</div>
+                    <div class="city-temp">28°</div>
+                </div>
+                <div class="city-card">
+                    <div class="city-name">Beijing</div>
+                    <div class="city-condition">Cloudy</div>
+                    <div class="city-temp">19°</div>
+                </div>
+                <div class="city-card">
+                    <div class="city-name">Jerusalem</div>
+                    <div class="city-condition">Sunny</div>
+                    <div class="city-temp">31°</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Search Popup -->
+    <div class="location-popup" id="location-popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <div class="popup-title">Search Location</div>
+                <button class="close-popup" id="close-popup">×</button>
+            </div>
+            <input type="text" class="search-input" id="popup-search" placeholder="Enter city name...">
+            <div class="search-results" id="search-results"></div>
+        </div>
+    </div>
+
+    <!-- Import Ionicons -->
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/7.1.0/ionicons/ionicons.js"></script>
+
+
+    <!--Import javascript-->
+    <script src="weather.js"></script>
+</body>
+</html>
