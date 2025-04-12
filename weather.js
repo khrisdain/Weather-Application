@@ -5,6 +5,8 @@ const API_BASE_URL = 'http://api.openweathermap.org/data/2.5';
 // DOM Elements
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
+const settingsBtn = document.getElementById('settings-button');
+const favoritesButton = document.getElementById('favorites-button');
 const locationSearch = document.getElementById('location-search');
 const locationPopup = document.getElementById('location-popup');
 const closePopup = document.getElementById('close-popup');
@@ -36,8 +38,23 @@ document.addEventListener('DOMContentLoaded', () => {
         themeIcon.setAttribute('name', 'sunny-outline');
     }
 
+    // Load favorites first
+    const favorites = JSON.parse(localStorage.getItem('weatherFavorites')) || [];
+    if (favorites.length > 0) {
+        currentLocation = {
+            city: favorites[0].name,
+            country: favorites[0].country,
+            lat: favorites[0].lat,
+            lon: favorites[0].lon
+        };
+        document.getElementById('search-input').value = `${currentLocation.city}, ${currentLocation.country}`;
+    }
+
     // Load weather data for default location
     loadWeatherData(currentLocation);
+
+    // Load the favorite cities from local storage
+    loadFavoriteTabs();
     
     // Load other cities
     loadOtherCitiesData();
@@ -59,18 +76,20 @@ function setupEventListeners() {
     closePopup.addEventListener('click', closeLocationPopup);
     searchInput.addEventListener('input', debounce(searchLocations, 500));
 
-    // Tab switching
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            // Handle tab switching functionality
-            // For simplicity, we're not implementing the actual tab switching
-            // but you would load different data based on the selected tab
-        });
-    });
+    // Add to Favorites
+    favoritesButton.addEventListener('click', addToFavorites);
+
+    // Update Favorites
+    settingsBtn.addEventListener("click", () => {
+        modal.style.display = "block";
+        updateFavoritesInSettings();
+    });    
 }
+
+// Refresh the page
+document.getElementById("home-button").addEventListener("click", function () {
+    window.location.href = "weather.html";
+});
 
 // Toggle between light and dark theme
 function toggleTheme() {
@@ -293,7 +312,12 @@ async function loadOtherCitiesData() {
                         const city = item.getAttribute('data-name');
                         const country = item.getAttribute('data-country');
                         
-                        currentLocation = { city, country, lat, lon };
+                        currentLocation = { 
+                            city: city,
+                            country: country,
+                            lat: parseFloat(lat),
+                            lon: parseFloat(lon)
+                        };
                         document.getElementById('search-input').value = `${city}, ${country}`;
                         
                         loadWeatherData(currentLocation);
@@ -402,4 +426,170 @@ async function loadOtherCitiesData() {
                 clearTimeout(timeout);
                 timeout = setTimeout(() => func.apply(context, args), delay);
             };
+        }
+
+        var modal = document.getElementById("myModal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal 
+        btn.onclick = function() {
+        modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+        modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+        }
+
+        async function addToFavorites() {
+            const cityInput = document.getElementById('search-input').value.trim();
+            
+            if (!cityInput) {
+                alert('Please search and select a valid city first');
+                return;
+            }
+        
+            try {
+                // Validate through OpenWeatherMap API
+                const response = await fetch(
+                    `https://api.openweathermap.org/geo/1.0/direct?q=${cityInput}&limit=1&appid=${API_KEY}`
+                );
+                
+                if (!response.ok) throw new Error('Validation failed');
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    alert('Invalid city - not found in our database');
+                    return;
+                }
+        
+                const cityInfo = {
+                    name: data[0].name,
+                    country: data[0].country,
+                    lat: data[0].lat,
+                    lon: data[0].lon
+                };
+        
+                // Get existing favorites
+                const favorites = JSON.parse(localStorage.getItem('weatherFavorites')) || [];
+                
+                // Check for duplicates
+                const exists = favorites.some(f => 
+                    f.lat === cityInfo.lat && f.lon === cityInfo.lon
+                );
+        
+                if (!exists) {
+                    favorites.push(cityInfo);
+                    localStorage.setItem('weatherFavorites', JSON.stringify(favorites));
+                    alert('Added to favorites!');
+                    
+                    // Update current location to the new favorite
+                    currentLocation = cityInfo;
+                    
+                    // Refresh UI elements
+                    loadFavoriteTabs();
+                    loadWeatherData(currentLocation);
+                } else {
+                    alert('This city is already in your favorites');
+                }
+            } catch (error) {
+                console.error('Favorite error:', error);
+                alert('Failed to add favorite. Please try again.');
+            }
+        }
+
+        function loadFavoriteTabs() {
+            const favorites = JSON.parse(localStorage.getItem('weatherFavorites')) || [];
+            const tabsContainer = document.querySelector('.tabs');
+            tabsContainer.innerHTML = '';
+        
+            favorites.forEach((favorite, index) => {
+                const tabElement = document.createElement('div');
+                tabElement.className = 'tab';
+                tabElement.textContent = `${favorite.name}, ${favorite.country}`;
+                
+                // Store coordinates in dataset
+                tabElement.dataset.lat = favorite.lat;
+                tabElement.dataset.lon = favorite.lon;
+        
+                // Add click handler to load weather
+                tabElement.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentLocation = {
+                        city: favorite.name,
+                        country: favorite.country,
+                        lat: favorite.lat,
+                        lon: favorite.lon
+                    };
+                    document.getElementById('search-input').value = `${favorite.name}, ${favorite.country}`;
+                    loadWeatherData(currentLocation);
+                });
+        
+                // Only activate first tab if we're actually showing its data
+                if (index === 0 && favorites.length > 0) {
+                    tabElement.classList.add('active');
+                }
+                
+                tabsContainer.appendChild(tabElement);
+            });
+        
+            if (favorites.length === 0) {
+                tabsContainer.innerHTML = '<div class="tab">No favorites yet</div>';
+            }
+        }
+
+        function updateFavoritesInSettings() {
+            const favorites = JSON.parse(localStorage.getItem('weatherFavorites')) || [];
+            const listContent = document.getElementById('favorites-list-content');
+            
+            if (favorites.length === 0) {
+                listContent.innerHTML = '<div>No saved locations</div>';
+                return;
+            }
+        
+            listContent.innerHTML = favorites.map((favorite, index) => `
+                <div class="favorite-item">
+                    <div>${favorite.name}, ${favorite.country}</div>
+                    <button class="remove-favorite" data-index="${index}">
+                        <ion-icon name="trash-outline"></ion-icon>
+                    </button>
+                </div>
+            `).join('');
+        
+            // Add click handlers for remove buttons
+            document.querySelectorAll('.remove-favorite').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    removeFavorite(index);
+                });
+            });
+        }
+        
+        function removeFavorite(index) {
+            const favorites = JSON.parse(localStorage.getItem('weatherFavorites')) || [];
+            if (index >= 0 && index < favorites.length) {
+                favorites.splice(index, 1);
+                localStorage.setItem('weatherFavorites', JSON.stringify(favorites));
+                updateFavoritesInSettings();
+                loadFavoriteTabs();
+                
+                // If removed favorite was currently displayed, update view
+                if (currentLocation.lat === favorites[index]?.lat && 
+                    currentLocation.lon === favorites[index]?.lon) {
+                    loadWeatherData(favorites[0] || currentLocation);
+                }
+            }
         }
