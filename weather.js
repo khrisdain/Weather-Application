@@ -146,6 +146,9 @@ async function loadWeatherData(location) {
         
         const forecastData = await forecastResponse.json();
         updateForecast(forecastData);
+
+        // Update rain chances with the forecast data
+        updateRainChances(forecastData);
         
     } catch (error) {
         console.error('Error fetching weather data:', error);
@@ -256,7 +259,7 @@ function updateForecast(data) {
                     </div>
                 </div>
             `;
-        }
+        }   
     });
     
     forecast.innerHTML = forecastHTML;
@@ -268,6 +271,38 @@ function mode(arr) {
         arr.filter(v => v === a).length - 
         arr.filter(v => v === b).length
     ).pop();
+}
+
+function updateRainChances(forecastData) {
+    const rainGraph = document.getElementById('rain-graph');
+    
+    // Get the next 6 forecast periods (3-hour intervals)
+    const next6Periods = forecastData.list.slice(0, 6);
+    
+    let rainGraphHTML = '';
+    
+    next6Periods.forEach((period, index) => {
+        // Get the time for this period
+        const date = new Date(period.dt * 1000);
+        const timeString = date.toLocaleTimeString('en-US', { hour: '2-digit', hour12: true });
+        
+        // Get the precipitation probability (pop) - multiply by 100 to get percentage
+        // The OpenWeatherMap API returns this as a value between 0 and 1
+        const rainProbability = Math.round((period.pop || 0) * 100);
+        
+        // Calculate bar height (10% minimum for visibility)
+        const barHeight = Math.max(10, rainProbability);
+        
+        rainGraphHTML += `
+            <div class="rain-bar">
+                <div class="rain-percentage">${rainProbability}%</div>
+                <div class="bar" style="height: ${barHeight}%;"></div>
+                <div class="time">${timeString}</div>
+            </div>
+        `;
+    });
+    
+    rainGraph.innerHTML = rainGraphHTML;
 }
 
 // Load data for other cities
