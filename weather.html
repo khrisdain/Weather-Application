@@ -136,9 +136,7 @@
             </div>
             <div class="map-container">
                 <div id="map-placeholder" style="background-color: #2d2d2d; height: 100%; width: 100%; position: relative;">
-                    <div style="position: absolute; right: 10px; bottom: 10px; color: white; background-color: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px;">
-                        Seattle, AU
-                    </div>
+                    <img src="Image/map.PNG" alt="map_ image">
                 </div>
                 <div class="map-controls">
                     <button class="map-button">
@@ -198,7 +196,10 @@
 
 
     <!--Import javascript-->
-    <script src="weather.js"></script>
+    <!-- Replace all script imports at bottom with: -->
+<script type="module" src="js/main.js"></script>
+
+
     <script>
     document.addEventListener("DOMContentLoaded", () => {
         const modal = document.getElementById("myModal");
