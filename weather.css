@@ -583,3 +583,19 @@ body {
     font-size: 16px;
     font-weight: 500;
 }
+
+.rain-percentage {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--highlight-color);
+    margin-bottom: 4px;
+}
+
+.rain-graph {
+    display: flex;
+    align-items: flex-end;
+    height: 90px;
+    gap: 24px;
+    margin-top: 16px;
+    padding-top: 20px;
+}
