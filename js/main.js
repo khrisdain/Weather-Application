@@ -45,7 +45,7 @@ class WeatherApp {
         this.loadWeatherData(this.currentLocation);
 
         // Load favorites tabs
-        this.tabManager.updateTabs(favorites);
+        this.tabManager.updateTabs(favorites, this.currentLocation);
         
         // Load other cities
         this.loadOtherCitiesData();
@@ -73,6 +73,10 @@ class WeatherApp {
         this.currentLocation = location;
         document.getElementById('search-input').value = location.toString();
         this.loadWeatherData(location);
+        
+        // Update tabs with current location context
+        const favorites = this.favoritesManager.getFavorites();
+        this.tabManager.updateTabs(favorites, this.currentLocation);
     }
     
     async loadWeatherData(location) {
@@ -131,7 +135,7 @@ class WeatherApp {
                 
                 // Refresh UI elements
                 const favorites = this.favoritesManager.getFavorites();
-                this.tabManager.updateTabs(favorites);
+                this.tabManager.updateTabs(favorites, this.currentLocation); 
             } else {
                 alert('This city is already in your favorites');
             }
@@ -143,12 +147,7 @@ class WeatherApp {
     
     handleFavoriteRemoved(index) {
         const favorites = this.favoritesManager.getFavorites();
-        this.tabManager.updateTabs(favorites);
-        
-        // If removed favorite was currently displayed, update view
-        if (favorites.length > 0) {
-            this.setCurrentLocation(favorites[0]);
-        }
+        this.tabManager.updateTabs(favorites, this.currentLocation);
     }
 }
 

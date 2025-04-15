@@ -23,7 +23,10 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    transition: background-color 0.3s, color 0.3s;
+}
+
+html {
+    background: url('./Image/pawel-czerwinski-6lQDFGOB1iw-unsplash.jpg');
 }
 
 html {
@@ -71,7 +74,6 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.2s;
 }
 
 .nav-button:hover {
@@ -603,4 +605,10 @@ body {
     gap: 24px;
     margin-top: 16px;
     padding-top: 20px;
+}
+
+.inactive-tab {
+    opacity: 0.5;
+    cursor: default !important;
+    background-color: transparent !important;
 }
