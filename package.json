@@ -1,0 +1,21 @@
+{
+  "name": "newFile",
+  "version": "1.0.0",
+  "description": "Simple weather application built using html CSS and JavaScript,. Additional content taken from external API's",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khrisdain/Weather-Application.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khrisdain/Weather-Application/issues"
+  },
+  "homepage": "https://github.com/khrisdain/Weather-Application#readme",
+  "type": "module"
+}

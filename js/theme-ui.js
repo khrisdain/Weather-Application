@@ -40,38 +40,35 @@ export class TabManager {
         this.onTabSelected = onTabSelected;
     }
     
-    updateTabs(favorites) {
+    updateTabs(favorites, currentLocation) {
         this.tabsContainer.innerHTML = '';
+        let activeTabExists = false;
     
-        favorites.forEach((favorite, index) => {
+        favorites.forEach(favorite => {
             const tabElement = document.createElement('div');
             tabElement.className = 'tab';
             tabElement.textContent = `${favorite.city}, ${favorite.country}`;
-            
-            // Store coordinates in dataset
-            tabElement.dataset.lat = favorite.lat;
-            tabElement.dataset.lon = favorite.lon;
     
-            // Add click handler to load weather
+            // Only activate tab if it matches current location AND exists in favorites
+            if (currentLocation && 
+                favorite.lat === currentLocation.lat && 
+                favorite.lon === currentLocation.lon) {
+                tabElement.classList.add('active');
+                activeTabExists = true;
+            }
+    
             tabElement.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 tabElement.classList.add('active');
-                
-                if (this.onTabSelected) {
-                    this.onTabSelected(favorite);
-                }
+                this.onTabSelected(favorite);
             });
     
-            // Only activate first tab if we're actually showing its data
-            if (index === 0 && favorites.length > 0) {
-                tabElement.classList.add('active');
-            }
-            
             this.tabsContainer.appendChild(tabElement);
         });
     
+        // Never auto-activate first tab
         if (favorites.length === 0) {
-            this.tabsContainer.innerHTML = '<div class="tab">No favorites yet</div>';
+            this.tabsContainer.innerHTML = '<div class="tab inactive-tab">No favorites yet</div>';
         }
     }
 }
@@ -118,7 +115,7 @@ export class SettingsManager {
         const favorites = this.favoritesManager.getFavorites();
         
         if (favorites.length === 0) {
-            this.favoritesListContent.innerHTML = '<div>No saved locations</div>';
+            this.favoritesListContent.innerHTML = '<div style="padding-top:5px;">No saved locations</div>';
             return;
         }
     
@@ -141,10 +138,17 @@ export class SettingsManager {
     }
     
     removeFavorite(index) {
-        const result = this.favoritesManager.removeFavorite(index);
-        if (result && this.onFavoriteRemoved) {
-            this.onFavoriteRemoved(index);
+        const favoritesData = JSON.parse(localStorage.getItem(this.favoritesManager.storageKey)) || [];
+        if (index >= 0 && index < favoritesData.length) {
+            favoritesData.splice(index, 1);
+            // Change this line too:
+            localStorage.setItem(this.favoritesManager.storageKey, JSON.stringify(favoritesData));
+            this.updateFavoritesInSettings();
+            if (this.onFavoriteRemoved) {
+                this.onFavoriteRemoved(index);
+            }
+            return true;
         }
-        this.updateFavoritesInSettings();
+        return false;
     }
 }
